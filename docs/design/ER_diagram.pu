@@ -1,0 +1,33 @@
+@startuml parking-reservations-system
+
+entity users {
+  +id : bigint
+  building_number : int
+  room_number : int
+  name : varchar
+  phone_number : varchar
+  password_hash : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity parking_spaces {
+  +id : bigint
+  space_number : varchar
+  created_at : timestamp
+}
+
+entity reservations {
+  +id : bigint
+  user_id : bigint
+  parking_space_id : bigint
+  start_time : datetime
+  end_time : datetime
+  created_at : timestamp
+  deleted_at : timestamp
+}
+
+users ||--o{ reservations
+parking_spaces ||--o{ reservations
+
+@enduml
