@@ -210,7 +210,8 @@ components:
       type: object
       properties:
         slotId:
-          type: integer
+          type: string
+          example: "来-1"
         available:
           type: boolean
 
@@ -218,7 +219,8 @@ components:
       type: object
       properties:
         slotId:
-          type: integer
+          type: string
+          example: "A-3"
         startTime:
           type: string
           format: date-time
@@ -236,7 +238,8 @@ components:
         reservationId:
           type: integer
         slotId:
-          type: integer
+          type: string
+          example: "来-1"
         startTime:
           type: string
           format: date-time
