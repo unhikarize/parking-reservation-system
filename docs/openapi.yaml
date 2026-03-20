@@ -227,10 +227,18 @@ components:
         endTime:
           type: string
           format: date-time
+        carNumber:
+          type: string
+          description: 車のナンバー下4桁
+          example: "1234"
+          minLength: 4
+          maxLength: 4
+          pattern: '^[0-9]{4}$'
       required:
         - slotId
         - startTime
         - endTime
+        - carNumber
 
     Reservation:
       type: object
@@ -246,6 +254,9 @@ components:
         endTime:
           type: string
           format: date-time
+        carNumber:
+          type: string
+          example: "1234"
 
     CreateUserRequest:
       type: object
