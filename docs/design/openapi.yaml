@@ -1,0 +1,276 @@
+openapi: 3.0.3
+info:
+  title: Parking Reservation API
+  description: 駐車場予約システムAPI（30分単位予約）
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Auth
+  - name: Parking
+  - name: Reservation
+  - name: Admin
+
+paths:
+
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: ログイン
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        "401":
+          description: 認証失敗
+
+  /api/parking-slots:
+    get:
+      tags:
+        - Parking
+      summary: 指定時間の駐車場空き状況取得
+      parameters:
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: 駐車場空き状況
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSlotAvailability'
+
+  /api/reservations:
+    post:
+      tags:
+        - Reservation
+      summary: 予約作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        "201":
+          description: 予約作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        "409":
+          description: 予約時間が重複
+
+  /api/reservations/me:
+    get:
+      tags:
+        - Reservation
+      summary: 自分の予約取得
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 自分の予約一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+
+  /api/reservations/{reservationId}:
+    delete:
+      tags:
+        - Reservation
+      summary: 予約キャンセル
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+
+  /api/admin/users:
+    post:
+      tags:
+        - Admin
+      summary: ユーザ作成
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        "201":
+          description: ユーザ作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/admin/users/{userId}:
+    delete:
+      tags:
+        - Admin
+      summary: ユーザ削除
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    LoginRequest:
+      type: object
+      properties:
+        buildingNumber:
+          type: integer
+        roomNumber:
+          type: integer
+        name:
+          type: string
+        password:
+          type: string
+      required:
+        - buildingNumber
+        - roomNumber
+        - name
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        buildingNumber:
+          type: integer
+        roomNumber:
+          type: integer
+        name:
+          type: string
+
+    ParkingSlotAvailability:
+      type: object
+      properties:
+        slotId:
+          type: string
+          example: "来-1"
+        available:
+          type: boolean
+
+    CreateReservationRequest:
+      type: object
+      properties:
+        slotId:
+          type: string
+          example: "A-3"
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        carNumber:
+          type: string
+          description: 車のナンバー下4桁
+          example: "1234"
+          minLength: 4
+          maxLength: 4
+          pattern: '^[0-9]{4}$'
+      required:
+        - slotId
+        - startTime
+        - endTime
+        - carNumber
+
+    Reservation:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+        slotId:
+          type: string
+          example: "来-1"
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        carNumber:
+          type: string
+          example: "1234"
+
+    CreateUserRequest:
+      type: object
+      properties:
+        buildingNumber:
+          type: integer
+        roomNumber:
+          type: integer
+        name:
+          type: string
+        password:
+          type: string
+      required:
+        - buildingNumber
+        - roomNumber
+        - name
+        - password
