@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Parking Reservation API
-  description: 駐車場予約システムAPI（30分単位予約）
+  description: 駐車場予約システムAPI（MVP）
   version: 1.0.0
 
 servers:
@@ -17,8 +17,7 @@ paths:
 
   /api/auth/login:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: ログイン
       requestBody:
         required: true
@@ -36,39 +35,36 @@ paths:
         "401":
           description: 認証失敗
 
-  /api/parking-slots:
+  /api/parking-slots/timeline:
     get:
-      tags:
-        - Parking
-      summary: 指定時間の駐車場空き状況取得
+      tags: [Parking]
+      summary: タイムライン形式の予約状況取得
       parameters:
-        - name: startTime
+        - name: date
           in: query
           required: true
           schema:
             type: string
-            format: date-time
-        - name: endTime
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date-time
+            format: date
       responses:
         "200":
-          description: 駐車場空き状況
+          description: タイムラインデータ
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ParkingSlotAvailability'
+                  $ref: '#/components/schemas/TimelineSlot'
 
   /api/reservations:
     post:
-      tags:
-        - Reservation
+      tags: [Reservation]
       summary: 予約作成
+      description: |
+        以下の場合は予約不可（409を返す）
+
+        1. 同一駐車枠で時間重複がある
+        2. ユーザーの同時間帯予約が2件以上になる
       security:
         - bearerAuth: []
       requestBody:
@@ -84,13 +80,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reservation'
+        "400":
+          description: リクエスト不正
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
         "409":
-          description: 予約時間が重複
+          description: 予約競合
 
   /api/reservations/me:
     get:
-      tags:
-        - Reservation
+      tags: [Reservation]
       summary: 自分の予約取得
       security:
         - bearerAuth: []
@@ -103,12 +104,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Reservation'
+        "401":
+          description: 認証エラー
 
   /api/reservations/{reservationId}:
     delete:
-      tags:
-        - Reservation
+      tags: [Reservation]
       summary: 予約キャンセル
+      description: |
+        予約開始時間を過ぎた予約はキャンセル不可（403）
       security:
         - bearerAuth: []
       parameters:
@@ -120,11 +124,18 @@ paths:
       responses:
         "204":
           description: 削除成功
+        "400":
+          description: リクエスト不正
+        "401":
+          description: 認証エラー
+        "403":
+          description: キャンセル不可
+        "404":
+          description: 存在しない
 
   /api/admin/users:
     post:
-      tags:
-        - Admin
+      tags: [Admin]
       summary: ユーザ作成
       security:
         - bearerAuth: []
@@ -136,16 +147,15 @@ paths:
               $ref: '#/components/schemas/CreateUserRequest'
       responses:
         "201":
-          description: ユーザ作成成功
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+          description: 作成成功
+        "400":
+          description: リクエスト不正
+        "403":
+          description: 権限エラー
 
   /api/admin/users/{userId}:
     delete:
-      tags:
-        - Admin
+      tags: [Admin]
       summary: ユーザ削除
       security:
         - bearerAuth: []
@@ -158,6 +168,8 @@ paths:
       responses:
         "204":
           description: 削除成功
+        "403":
+          description: 権限エラー
 
 components:
 
@@ -176,14 +188,11 @@ components:
           type: integer
         roomNumber:
           type: integer
-        name:
-          type: string
         password:
           type: string
       required:
         - buildingNumber
         - roomNumber
-        - name
         - password
 
     LoginResponse:
@@ -205,58 +214,8 @@ components:
           type: integer
         name:
           type: string
-
-    ParkingSlotAvailability:
-      type: object
-      properties:
-        slotId:
+        role:
           type: string
-          example: "来-1"
-        available:
-          type: boolean
-
-    CreateReservationRequest:
-      type: object
-      properties:
-        slotId:
-          type: string
-          example: "A-3"
-        startTime:
-          type: string
-          format: date-time
-        endTime:
-          type: string
-          format: date-time
-        carNumber:
-          type: string
-          description: 車のナンバー下4桁
-          example: "1234"
-          minLength: 4
-          maxLength: 4
-          pattern: '^[0-9]{4}$'
-      required:
-        - slotId
-        - startTime
-        - endTime
-        - carNumber
-
-    Reservation:
-      type: object
-      properties:
-        reservationId:
-          type: integer
-        slotId:
-          type: string
-          example: "来-1"
-        startTime:
-          type: string
-          format: date-time
-        endTime:
-          type: string
-          format: date-time
-        carNumber:
-          type: string
-          example: "1234"
 
     CreateUserRequest:
       type: object
@@ -274,3 +233,67 @@ components:
         - roomNumber
         - name
         - password
+
+    CreateReservationRequest:
+      type: object
+      properties:
+        parkingSpaceId:
+          type: integer
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        carNumber:
+          type: string
+          minLength: 1
+          maxLength: 4
+          pattern: '^[0-9]{1,4}$'
+      required:
+        - parkingSpaceId
+        - startTime
+        - endTime
+        - carNumber
+
+    Reservation:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+        parkingSpaceId:
+          type: integer
+        parkingSpaceNumber:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        carNumber:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    TimelineSlot:
+      type: object
+      properties:
+        parkingSpaceId:
+          type: integer
+        parkingSpaceNumber:
+          type: string
+        reservations:
+          type: array
+          items:
+            type: object
+            properties:
+              startTime:
+                type: string
+                format: date-time
+              endTime:
+                type: string
+                format: date-time
+              isMine:
+                type: boolean

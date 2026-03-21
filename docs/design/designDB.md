@@ -5,12 +5,14 @@
 | カラム名 | 型 | 必須 | 説明 |
 |---|---|---|---|
 | id | bigint PK | ○ | ユーザーID |
+| role | varchar(20) | ○ | USER / ADMIN（DEFAULT 'USER'） |
 | building_number | int | ○ | 号棟 |
 | room_number | int | ○ | 部屋番号 |
 | name | varchar(50) | ○ | 名前 |
+| is_first_login | boolean | ○ | 初回ログインフラグ（DEFAULT true） |
 | password_hash | varchar(255) | ○ | パスワード（ハッシュ） |
-| created_at | timestamp | ○ | 作成日時 |
-| updated_at | timestamp | ○ | 更新日時 |
+| created_at | timestamptz | ○ | 作成日時 |
+| updated_at | timestamptz | ○ | 更新日時 |
 
 ### 制約
 
@@ -29,8 +31,9 @@
 | カラム名 | 型 | 必須 | 説明 |
 |---|---|---|---|
 | id | bigint PK | ○ | 駐車場ID |
-| space_number | varchar(10) | ○ | 駐車場番号 |
-| created_at | timestamp | ○ | 作成日時 |
+| space_number | varchar(10) | ○ | 駐車場番号（例：A-1, 来-1） |
+| available | boolean | ○ | 利用可能フラグ（DEFAULT true） |
+| created_at | timestamptz | ○ | 作成日時 |
 
 ### 制約
 
@@ -45,35 +48,22 @@
 | id | bigint PK | ○ | 予約ID |
 | user_id | bigint FK | ○ | 予約者 |
 | parking_space_id | bigint FK | ○ | 駐車場 |
-| car_number | varchar(4) | ○ | 車のナンバー（4桁数字） |
-| start_time | datetime | ○ | 利用開始 |
-| end_time | datetime | ○ | 利用終了 |
-| created_at | timestamp | ○ | 作成日時 |
-| deleted_at | timestamp | | キャンセル日時（論理削除） |
+| car_number | varchar(4) | ○ | 車のナンバー（1〜4桁の数字） |
+| start_time | timestamptz | ○ | 利用開始 |
+| end_time | timestamptz | ○ | 利用終了 |
+| created_at | timestamptz | ○ | 作成日時 |
+| deleted_at | timestamptz | | キャンセル日時（論理削除） |
 
 ### 外部キー
 
-- user_id → users.id
+- user_id → users.id（ON DELETE CASCADE）
 - parking_space_id → parking_spaces.id
 
 ---
 
-## 予約仕様
+## インデックス
 
-- 30分単位
-- 同時予約：最大2件
-- 予約時間制限なし
-- 予約可能期間制限なし
-- 論理削除：deleted_at
-
----
-
-## 予約重複防止ロジック
-
-同じ parking_space_id で以下条件の予約が存在する場合は予約不可
-
-```
-start_time < existing_end_time
-AND end_time > existing_start_time
-AND deleted_at IS NULL
-```
+```sql
+CREATE INDEX idx_reservations_space_time
+ON reservations (parking_space_id, start_time, end_time)
+WHERE deleted_at IS NULL;
