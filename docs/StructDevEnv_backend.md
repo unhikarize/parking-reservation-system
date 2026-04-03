@@ -93,6 +93,9 @@ npm -v
 
 # 3. WSL2 セットアップ（最重要）
 
+必要であれば下記を実行  
+https://learn.microsoft.com/ja-jp/windows/wsl/install-manual#step-1---enable-the-windows-subsystem-for-linux
+
 ## 3.1 なぜ必要？
 
 DockerはWindows上では直接動かず、
@@ -128,8 +131,10 @@ wsl --unregister Ubuntu
 ## 3.5 WSLインストール
 
 ```powershell
-wsl --install
+wsl --install -d Ubuntu
 ```
+
+ディストリビューションはUbuntuにしておく。（特にこだわりはないが、これが良いだろう）
 
 ---
 
@@ -214,12 +219,7 @@ docker ps
 ## 5.1 コンテナ起動
 
 ```bash
-docker run --name parking-db \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=parking \
-  -p 5432:5432 \
-  -d postgres
+docker run --name parking-db  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=parking -p 5432:5432 -d postgres
 ```
 
 ---
@@ -274,78 +274,108 @@ https://dbeaver.io/
 
 ---
 
-# 7. プロジェクト作成
+# 7. プロジェクト取得
 
-```bash
-mkdir parking-reservation
-cd parking-reservation
-git init
-```
+## 7.1 リポジトリをクローン
+
+    git clone https://github.com/unhikarize/parking-reservation-system.git
+    → GitHub上のソースコード一式をローカルにコピーする
+
+    cd parking-reservation-system
+    → クローンしたプロジェクトのディレクトリに移動する
 
 ---
 
-# 8. バックエンド作成
+# 8. バックエンドセットアップ
 
-```bash
-mkdir backend
-cd backend
-npm init -y
-```
+    cd src/backend
+    → バックエンドの作業ディレクトリに移動する
+
+    npm init -y
+    → Node.jsプロジェクトを初期化し、package.jsonを自動生成する
 
 ---
 
 ## 8.1 ライブラリインストール
 
-```bash
-npm install express cors dotenv jsonwebtoken bcrypt
-npm install -D typescript ts-node-dev @types/node @types/express
-```
+    npm install express cors dotenv jsonwebtoken bcrypt
+    → サーバー構築や認証に必要なライブラリをインストールする
+
+    npm install -D typescript ts-node-dev @types/node @types/express
+    → 開発用（TypeScriptや型定義など）のライブラリをインストールする
 
 ---
 
 ## 8.2 TypeScript初期化
 
-```bash
-npx tsc --init
-```
+    npx tsc --init
+    → TypeScriptの設定ファイル（tsconfig.json）を生成する
 
 ---
 
 # 9. Prisma セットアップ
 
-```bash
-npm install prisma @prisma/client
-npx prisma init
-```
+    npm install prisma @prisma/client
+    → Prisma（ORM）とクライアントライブラリをインストールする
+
+    npx prisma init
+    → Prismaの初期設定ファイルを生成する（.envファイルも自動作成される）
 
 ---
 
 ## 9.1 .env設定
 
-```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/parking"
-```
+    （src/backend/.env を開く）
+
+    DATABASE_URL="postgresql://postgres:password@localhost:5432/parking"
+
+    → PostgreSQLへの接続情報を設定する
+    → .envファイルは prisma init 実行時に自動生成される
 
 ---
 
-## 9.2 接続確認
+## 9.2 補足（Prismaのメッセージについて）
 
-```bash
-npx prisma studio
-```
+    prisma init 実行後に表示されるメッセージは
+    「次に何をするか」の案内です。
+
+    今回の手順ではまだ不要なため、
+    特に対応せずそのままでOKです。
+
+---
+
+## 9.3 接続確認
+
+    npx prisma studio
+    → GUIでデータベースの中身を確認できるツールを起動する
+    
+---
+
+# 10. フロントエンドセットアップ
+
+    cd ../frontend
+    → フロントエンドの作業ディレクトリに移動する
+
+    npm create vite@latest .
+    → 現在のディレクトリにVite（フロントエンド開発環境）を作成する
 
 ---
 
-# 10. フロントエンド作成
+## 10.1 設定選択
 
-```bash
-cd ..
-npm create vite@latest frontend
-cd frontend
-npm install
-```
+以下を選択：
+
+- framework → Vue  
+- variant → TypeScript  
+
+→ Vue + TypeScript のフロントエンドプロジェクトを作成する
 
 ---
+
+## 10.2 依存関係インストール
+
+    npm install
+    → フロントエンドに必要なライブラリをインストールする
 
 # 11. VSCode 拡張機能
 
