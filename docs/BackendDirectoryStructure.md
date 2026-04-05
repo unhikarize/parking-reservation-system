@@ -17,7 +17,7 @@ backend/
       middleware/
 
     application/
-      usecases/
+      useCases/
       dto/
 
     domain/
@@ -76,7 +76,7 @@ presentation/
 
 ```
 application/
-  usecases/   # ユースケース単位の処理
+  useCases/   # ユースケース単位の処理
   dto/        # データ転送オブジェクト
 ```
 
