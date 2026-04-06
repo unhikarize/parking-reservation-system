@@ -48,7 +48,7 @@ export const userRepository: IUserRepository = {
         name: data.name,
         passwordHash: data.passwordHash,
         role: UserRole.USER,
-        is_first_login: true,
+        isFirstLogin: true,
       },
     })
 
