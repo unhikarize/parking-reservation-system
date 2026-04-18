@@ -1,6 +1,6 @@
-import { prisma } from '@/infrastructure/prisma/client'
-import { IUserRepository } from '@/domain/repositories/UserRepository'
-import { UserRole } from '@/domain/entities/User'
+import { prisma } from "@/infrastructure/prisma/client";
+import { IUserRepository } from "@/domain/repositories/UserRepository";
+import { UserRole } from "@/domain/entities/User";
 /**
  * ユーザーリポジトリ（Prisma実装）
  */
@@ -19,10 +19,10 @@ export const userRepository: IUserRepository = {
           roomNumber: roomNumber,
         },
       },
-    })
+    });
 
     if (!user) {
-        return null
+      return null;
     }
 
     return {
@@ -32,7 +32,8 @@ export const userRepository: IUserRepository = {
       name: user.name,
       passwordHash: user.passwordHash,
       role: user.role as UserRole,
-    }
+      isFirstLogin: user.isFirstLogin,
+    };
   },
 
   /**
@@ -50,7 +51,7 @@ export const userRepository: IUserRepository = {
         role: UserRole.USER,
         isFirstLogin: true,
       },
-    })
+    });
 
     return {
       id: Number(user.id),
@@ -59,6 +60,6 @@ export const userRepository: IUserRepository = {
       name: user.name,
       passwordHash: user.passwordHash,
       role: user.role as UserRole,
-    }
+    };
   },
-}
+};
