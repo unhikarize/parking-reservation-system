@@ -1,5 +1,6 @@
-import { Request, Response } from 'express'
-import { createUserUseCase } from '@/application/useCases/createUserUseCase'
+import { createUserUseCase } from "@/application/useCases/createUserUseCase";
+import { HTTP_STATUS } from "@/shared/constants/httpStatus";
+import { Request, Response } from "express";
 
 /**
  * ユーザー作成コントローラー
@@ -10,9 +11,9 @@ import { createUserUseCase } from '@/application/useCases/createUserUseCase'
  */
 export const createUserController = async (req: Request, res: Response) => {
   try {
-    const result = await createUserUseCase.execute(req.body)
-    res.status(201).json(result)
+    const result = await createUserUseCase.execute(req.body);
+    res.status(HTTP_STATUS.CREATED).json(result);
   } catch (e: any) {
-    res.status(400).json({ message: e.message })
+    res.status(HTTP_STATUS.BAD_REQUEST).json({ message: e.message });
   }
-}
+};

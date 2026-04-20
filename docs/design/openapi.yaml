@@ -200,6 +200,8 @@ components:
       properties:
         token:
           type: string
+        isFirstLogin:
+          type: boolean
         user:
           $ref: '#/components/schemas/User'
 
