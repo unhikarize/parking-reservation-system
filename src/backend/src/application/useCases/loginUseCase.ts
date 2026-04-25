@@ -61,6 +61,7 @@ export class LoginUseCase {
         roomNumber: user.roomNumber,
         name: user.name,
         role: user.role,
+        isFirstLogin: user.isFirstLogin,
       },
     };
   }

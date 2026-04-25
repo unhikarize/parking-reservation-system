@@ -60,6 +60,7 @@ export const userRepository: IUserRepository = {
       name: user.name,
       passwordHash: user.passwordHash,
       role: user.role as UserRole,
+      isFirstLogin: user.isFirstLogin,
     };
   },
 };

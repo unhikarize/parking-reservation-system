@@ -41,7 +41,7 @@ const login = async (): Promise<void> => {
     // TODO: セキュリティを考慮して、localStorage以外の方法も検討する
     localStorage.setItem("token", token);
 
-    const isFirstLogin = response.data.isFirstLogin;
+    const isFirstLogin = response.data.user.isFirstLogin;
     if (isFirstLogin) {
       successMessage.value = "初回ログイン成功！パスワードを変更してください。";
       setTimeout(() => {
