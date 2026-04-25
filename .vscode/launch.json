@@ -16,6 +16,32 @@
       "cwd": "${workspaceFolder}/src/backend",
       "envFile": "${workspaceFolder}/src/backend/.env",
       "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Frontend (Vite)",
+      "cwd": "${workspaceFolder}/src/frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "Debug Frontend (Chrome)",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src/frontend"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "FullStack Debug",
+      "configurations": [
+        "Debug Backend",
+        "Run Frontend (Vite)",
+        "Debug Frontend (Chrome)"
+      ]
     }
   ]
 }
