@@ -1,7 +1,11 @@
-import { CreateUserDto } from '@/application/dto/CreateUserDto'
-import { userRepository } from '@/infrastructure/repositories/userRepository'
-import bcrypt from 'bcrypt'
-import { createUserSchema } from '@/application/dto/CreateUserDto'
+import {
+  CreateUserDto,
+  CreateUserResponseDto,
+  createUserSchema,
+} from "@/application/dto/CreateUserDto";
+import { userRepository } from "@/infrastructure/repositories/userRepository";
+import bcrypt from "bcrypt";
+
 /**
  * ユーザー作成ユースケース
  *
@@ -16,28 +20,27 @@ import { createUserSchema } from '@/application/dto/CreateUserDto'
  * @throws Error バリデーションエラー / 重複エラー
  */
 export const createUserUseCase = {
-  execute: async (dto: CreateUserDto) => {
-
+  execute: async (dto: CreateUserDto): Promise<CreateUserResponseDto> => {
     // バリデーション
-    const parsed = createUserSchema.safeParse(dto)
+    const parsed = createUserSchema.safeParse(dto);
     if (!parsed.success) {
-    throw new Error(parsed.error.message)
+      throw new Error(parsed.error.message);
     }
 
-    const { buildingNumber, roomNumber, name, password } = parsed.data
-    
+    const { buildingNumber, roomNumber, name, password } = parsed.data;
+
     // 重複チェック
     const existing = await userRepository.findByBuildingAndRoom(
       buildingNumber,
-      roomNumber
-    )
+      roomNumber,
+    );
 
     if (existing) {
-      throw new Error('既に存在するユーザーです')
+      throw new Error("既に存在するユーザーです");
     }
 
     // パスワードハッシュ化
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await bcrypt.hash(password, 10);
 
     // 作成
     const user = await userRepository.create({
@@ -45,13 +48,13 @@ export const createUserUseCase = {
       roomNumber,
       name,
       passwordHash,
-    })
+    });
 
     return {
       id: user.id,
       buildingNumber: user.buildingNumber,
       roomNumber: user.roomNumber,
       name: user.name,
-    }
+    };
   },
-}
+};
