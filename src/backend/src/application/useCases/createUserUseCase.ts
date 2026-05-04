@@ -30,7 +30,7 @@ export const createUserUseCase = {
     const { buildingNumber, roomNumber, name, password } = parsed.data;
 
     // 重複チェック
-    const existing = await userRepository.findByBuildingAndRoom(
+    const existing = await userRepository.findUserByBuildingAndRoom(
       buildingNumber,
       roomNumber,
     );
@@ -43,7 +43,7 @@ export const createUserUseCase = {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // 作成
-    const user = await userRepository.create({
+    const user = await userRepository.createUser({
       buildingNumber,
       roomNumber,
       name,

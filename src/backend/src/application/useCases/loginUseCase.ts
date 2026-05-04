@@ -26,7 +26,7 @@ export class LoginUseCase {
    * @throws UnauthorizedError 認証に失敗した場合
    */
   async execute(input: LoginDto): Promise<LoginResponseDto> {
-    const user = await this.userRepository.findByBuildingAndRoom(
+    const user = await this.userRepository.findUserByBuildingAndRoom(
       input.buildingNumber,
       input.roomNumber,
     );

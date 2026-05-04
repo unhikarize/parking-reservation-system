@@ -1,6 +1,6 @@
 import { prisma } from "@/infrastructure/prisma/client";
 import { IUserRepository } from "@/domain/repositories/UserRepository";
-import { UserRole } from "@/domain/entities/User";
+import { User, UserRole } from "@/domain/entities/User";
 /**
  * ユーザーリポジトリ（Prisma実装）
  */
@@ -11,7 +11,10 @@ export const userRepository: IUserRepository = {
    * @param roomNumber 部屋番号
    * @returns ユーザーまたはnull
    */
-  findByBuildingAndRoom: async (buildingNumber, roomNumber) => {
+  findUserByBuildingAndRoom: async (
+    buildingNumber,
+    roomNumber,
+  ): Promise<User | null> => {
     const user = await prisma.user.findUnique({
       where: {
         buildingNumber_roomNumber: {
@@ -41,7 +44,7 @@ export const userRepository: IUserRepository = {
    * @param data ユーザーデータ
    * @returns 作成されたユーザー
    */
-  create: async (data) => {
+  createUser: async (data): Promise<User> => {
     const user = await prisma.user.create({
       data: {
         buildingNumber: data.buildingNumber,

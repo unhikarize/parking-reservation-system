@@ -8,9 +8,12 @@ import { Request, Response } from "express";
  *
  * @param req Express Request
  * @param res Express Response
- * @returns HTTPレスポンス
+ * @returns void
  */
-export const createUserController = async (req: Request, res: Response) => {
+export const createUserController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const result = await createUserUseCase.execute(req.body);
     res.status(HTTP_STATUS.CREATED).json(result);
