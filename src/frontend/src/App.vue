@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import axios from "axios";
 import { ref } from "vue";
+import { loginApi } from "@/api/auth";
 
 /**
  * 入力値
@@ -29,19 +29,16 @@ const login = async (): Promise<void> => {
   }
 
   try {
-    // TODO: URLは環境変数などで管理する
-    const response = await axios.post("http://localhost:3000/api/auth/login", {
+    const response = await loginApi({
       buildingNumber: Number(buildingNumber.value),
       roomNumber: Number(roomNumber.value),
       password: password.value,
     });
 
-    const token = response.data.token;
-    // token保存
-    // TODO: セキュリティを考慮して、localStorage以外の方法も検討する
+    const token = response.token;
     localStorage.setItem("token", token);
 
-    const isFirstLogin = response.data.user.isFirstLogin;
+    const isFirstLogin = response.user.isFirstLogin;
     if (isFirstLogin) {
       successMessage.value = "初回ログイン成功！パスワードを変更してください。";
       setTimeout(() => {
@@ -52,9 +49,8 @@ const login = async (): Promise<void> => {
 
     successMessage.value = "ログイン成功！";
 
-    const role = response.data.user.role;
+    const role = response.user.role;
 
-    // 次の画面へ（仮）
     setTimeout(() => {
       if (role === "ADMIN") {
         window.location.href = "/admin";
@@ -62,8 +58,12 @@ const login = async (): Promise<void> => {
         window.location.href = "/top";
       }
     }, 1000);
-  } catch (error: any) {
-    errorMessage.value = "ログインに失敗しました";
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      errorMessage.value = error.message;
+    } else {
+      errorMessage.value = "ログインに失敗しました";
+    }
   }
 };
 

@@ -91,6 +91,11 @@ import { User } from '@/domain/entities/User'
 - pages：画面単位
 - composables：ロジックの共通化
 - api：API通信処理
+- store：状態管理（必要に応じて Pinia など）
+- utils：ユーティリティ関数
+- types：型定義
+
+> フロントエンドはこのようなシンプルで拡張しやすい構成を基本とする
 
 ---
 
@@ -128,7 +133,7 @@ import { User } from '@/domain/entities/User'
 ### 3.1 レイヤー構造
 
 - presentation（controller）
-- application（usecase）
+- application（useCase）
 - domain（entity）
 - infrastructure（repository）
 
