@@ -1,4 +1,5 @@
 import { apiClient } from "@/api/client";
+import axios from "axios";
 
 /**
  * ログインリクエストDTO
@@ -33,13 +34,21 @@ export interface LoginResponse {
  * 認証APIにログインリクエストを送信する
  * @param payload ログインリクエスト
  * @returns ログインレスポンス
+ * @throws Error エラーメッセージ
  */
 export const loginApi = async (
   payload: LoginRequest,
 ): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>(
-    "/api/auth/login",
-    payload,
-  );
-  return response.data;
+  try {
+    const response = await apiClient.post<LoginResponse>(
+      "/api/auth/login",
+      payload,
+    );
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("ログインに失敗しました");
+  }
 };

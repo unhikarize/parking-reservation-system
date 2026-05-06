@@ -16,9 +16,14 @@ export class AuthController {
    *
    * @param req HTTPリクエスト
    * @param res HTTPレスポンス
+   * @returns void
    */
   async login(req: Request, res: Response): Promise<void> {
-    const result = await this.loginUseCase.execute(req.body);
-    res.status(HTTP_STATUS.OK).json(result);
+    try {
+      const result = await this.loginUseCase.execute(req.body);
+      res.status(HTTP_STATUS.OK).json(result);
+    } catch (error) {
+      throw error;
+    }
   }
 }
