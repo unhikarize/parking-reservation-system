@@ -4,9 +4,8 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     },
 
     "ignoreDeprecations": "6.0",
@@ -45,7 +44,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src"]
 }

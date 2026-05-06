@@ -10,6 +10,7 @@ import { HTTP_STATUS } from "@/shared/constants/httpStatus";
  * @param req HTTPリクエスト
  * @param res HTTPレスポンス
  * @param next 次のミドルウェア
+ * @returns void
  *
  * @throws 401 トークンが存在しない、または不正な場合
  */
@@ -17,13 +18,12 @@ export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res
-      .status(HTTP_STATUS.UNAUTHORIZED)
-      .json({ message: "Unauthorized" });
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: "Unauthorized" });
+    return;
   }
 
   next();

@@ -1,3 +1,4 @@
+import { LoginDto, LoginResponseDto } from "@/application/dto/LoginDto";
 import { IUserRepository } from "@/domain/repositories/UserRepository";
 import { UnauthorizedError } from "@/shared/errors/UnauthorizedError";
 import bcrypt from "bcrypt";
@@ -24,12 +25,8 @@ export class LoginUseCase {
    *
    * @throws UnauthorizedError 認証に失敗した場合
    */
-  async execute(input: {
-    buildingNumber: number;
-    roomNumber: number;
-    password: string;
-  }) {
-    const user = await this.userRepository.findByBuildingAndRoom(
+  async execute(input: LoginDto): Promise<LoginResponseDto> {
+    const user = await this.userRepository.findUserByBuildingAndRoom(
       input.buildingNumber,
       input.roomNumber,
     );

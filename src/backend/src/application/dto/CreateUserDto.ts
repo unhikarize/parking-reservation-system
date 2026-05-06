@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 /**
  * ユーザー作成DTOスキーマ
@@ -8,9 +8,19 @@ export const createUserSchema = z.object({
   roomNumber: z.number().int().positive(),
   name: z.string().min(1).max(50),
   password: z.string().min(6),
-})
+});
+
+/**
+ * 作成されたユーザーのレスポンスDTO
+ */
+export interface CreateUserResponseDto {
+  id: number;
+  buildingNumber: number;
+  roomNumber: number;
+  name: string;
+}
 
 /**
  * ユーザー作成DTO
  */
-export type CreateUserDto = z.infer<typeof createUserSchema>
+export type CreateUserDto = z.infer<typeof createUserSchema>;

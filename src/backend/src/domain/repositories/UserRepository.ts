@@ -1,4 +1,4 @@
-import { User } from '@/domain/entities/User'
+import { User } from "@/domain/entities/User";
 
 /**
  * ユーザーリポジトリインターフェース
@@ -10,20 +10,20 @@ export interface IUserRepository {
    * @param roomNumber 部屋番号
    * @returns ユーザーまたはnull
    */
-  findByBuildingAndRoom(
+  findUserByBuildingAndRoom(
     buildingNumber: number,
-    roomNumber: number
-  ): Promise<User | null>
+    roomNumber: number,
+  ): Promise<User | null>;
 
   /**
    * ユーザーを作成する
    * @param data ユーザーデータ
    * @returns 作成されたユーザー
    */
-  create(data: {
-    buildingNumber: number
-    roomNumber: number
-    name: string
-    passwordHash: string
-  }): Promise<User>
+  createUser(data: {
+    buildingNumber: number;
+    roomNumber: number;
+    name: string;
+    passwordHash: string;
+  }): Promise<User>;
 }
