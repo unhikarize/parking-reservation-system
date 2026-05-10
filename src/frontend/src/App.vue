@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { loginApi } from "@/api/auth";
+import { UI_MESSAGES } from "@/constants/messages";
+import { toUserFacingErrorMessage } from "@/utils/errorMapper";
+import { ref } from "vue";
 
 /**
  * 入力値
@@ -24,7 +26,7 @@ const login = async (): Promise<void> => {
   successMessage.value = "";
 
   if (!validateLoginFields()) {
-    errorMessage.value = "すべての項目を入力してください";
+    errorMessage.value = UI_MESSAGES.REQUIRED_FIELDS;
     return;
   }
 
@@ -40,14 +42,14 @@ const login = async (): Promise<void> => {
 
     const isFirstLogin = response.user.isFirstLogin;
     if (isFirstLogin) {
-      successMessage.value = "初回ログイン成功！パスワードを変更してください。";
+      successMessage.value = UI_MESSAGES.FIRST_LOGIN_SUCCESS;
       setTimeout(() => {
         window.location.href = "/change-password";
       }, 1000);
       return;
     }
 
-    successMessage.value = "ログイン成功！";
+    successMessage.value = UI_MESSAGES.LOGIN_SUCCESS;
 
     const role = response.user.role;
 
@@ -59,11 +61,7 @@ const login = async (): Promise<void> => {
       }
     }, 1000);
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      errorMessage.value = error.message;
-    } else {
-      errorMessage.value = "ログインに失敗しました";
-    }
+    errorMessage.value = toUserFacingErrorMessage(error);
   }
 };
 
@@ -81,22 +79,34 @@ const validateLoginFields = (): boolean => {
 
 <template>
   <div style="max-width: 400px; margin: 50px auto">
-    <h1>駐車場予約システム</h1>
-    <h2>ログイン</h2>
+    <h1>{{ UI_MESSAGES.APP_TITLE }}</h1>
+    <h2>{{ UI_MESSAGES.LOGIN_TITLE }}</h2>
 
     <div style="margin-bottom: 10px">
-      <input v-model="buildingNumber" placeholder="号棟" type="number" />
+      <input
+        v-model="buildingNumber"
+        :placeholder="UI_MESSAGES.BUILDING_PLACEHOLDER"
+        type="number"
+      />
     </div>
 
     <div style="margin-bottom: 10px">
-      <input v-model="roomNumber" placeholder="部屋番号" type="number" />
+      <input
+        v-model="roomNumber"
+        :placeholder="UI_MESSAGES.ROOM_PLACEHOLDER"
+        type="number"
+      />
     </div>
 
     <div style="margin-bottom: 10px">
-      <input v-model="password" type="password" placeholder="パスワード" />
+      <input
+        v-model="password"
+        type="password"
+        :placeholder="UI_MESSAGES.PASSWORD_PLACEHOLDER"
+      />
     </div>
 
-    <button @click="login">ログイン</button>
+    <button @click="login">{{ UI_MESSAGES.LOGIN_BUTTON }}</button>
 
     <p v-if="successMessage" style="color: green">
       {{ successMessage }}

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
 import { UnauthorizedError } from "@/shared/errors/UnauthorizedError";
 import { logger } from "@/shared/utils/logger";
+import { NextFunction, Request, Response } from "express";
 
 /**
  * グローバルエラーハンドラーミドルウェア
@@ -23,13 +23,21 @@ export const errorHandler = (
 ): void => {
   logger.error(err);
 
+  // TODO: Prismaのエラーなど、特定のエラータイプに応じた処理を追加する
+  // 現状だと、Prismaエラーの場合、Errorオブジェクトとして処理されるが、
+  // メッセージがわかりづらく、ユーザにとっては不利益な情報となる
+
   if (err instanceof UnauthorizedError) {
-    res.status(err.statusCode).json({ message: err.message });
+    res.status(err.statusCode).json({ code: err.code, message: err.message });
     return;
   }
 
   if (err instanceof Error) {
-    res.status(HTTP_STATUS.BAD_REQUEST).json({ message: err.message });
+    const body: Record<string, unknown> = { message: err.message };
+    if ("code" in err) {
+      body.code = (err as { code?: string }).code;
+    }
+    res.status(HTTP_STATUS.BAD_REQUEST).json(body);
     return;
   }
 
