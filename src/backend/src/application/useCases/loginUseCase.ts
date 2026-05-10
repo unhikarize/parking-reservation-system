@@ -1,5 +1,6 @@
 import { LoginDto, LoginResponseDto } from "@/application/dto/LoginDto";
 import { IUserRepository } from "@/domain/repositories/UserRepository";
+import { ERROR_CODE } from "@/shared/constants/errorCodes";
 import { UnauthorizedError } from "@/shared/errors/UnauthorizedError";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -32,13 +33,19 @@ export class LoginUseCase {
     );
 
     if (!user) {
-      throw new UnauthorizedError("ユーザーが存在しません");
+      throw new UnauthorizedError(
+        ERROR_CODE.USER_NOT_FOUND,
+        "ユーザーが存在しません",
+      );
     }
 
     const isValid = await bcrypt.compare(input.password, user.passwordHash);
 
     if (!isValid) {
-      throw new UnauthorizedError("パスワードが不正です");
+      throw new UnauthorizedError(
+        ERROR_CODE.INVALID_PASSWORD,
+        "パスワードが不正です",
+      );
     }
 
     const token = jwt.sign(
